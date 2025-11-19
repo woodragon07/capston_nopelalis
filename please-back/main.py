@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from pathlib import Path
 from typing import Optional, Dict
 from datetime import datetime, timezone, timedelta
+from community import router as community_router
 import json, uuid, time
 
 app = FastAPI(title="CAP Stats JSON")
@@ -13,6 +14,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(community_router, prefix="/community", tags=["community"])
 
 # --- JSON 파일 경로 ---
 PLAYERS_DB = Path("players.json")  # 각 플레이어 × 스테이지 통계
