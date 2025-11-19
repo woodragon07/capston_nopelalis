@@ -1,0 +1,28 @@
+{
+  "cases": {
+    "1": {
+      "caseid": "1",
+      "playCount": 5,
+      "totalTimeSeconds": 105,
+      "avgTimeSeconds": 21.0,
+      "trueCount": 4,
+      "falseCount": 1
+    },
+    "2": {
+      "caseid": "2",
+      "playCount": 4,
+      "totalTimeSeconds": 52,
+      "avgTimeSeconds": 13.0,
+      "trueCount": 4,
+      "falseCount": 0
+    },
+    "3": {
+      "caseid": "3",
+      "playCount": 2,
+      "totalTimeSeconds": 25,
+      "avgTimeSeconds": 12.5,
+      "trueCount": 2,
+      "falseCount": 0
+    }
+  }
+}
