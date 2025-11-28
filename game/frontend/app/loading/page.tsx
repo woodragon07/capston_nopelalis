@@ -1,5 +1,6 @@
 'use client';
 
+import image from 'next/image';
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 
@@ -44,26 +45,36 @@ export default function LoadingPage() {
     <div className="w-screen h-screen bg-black flex items-center justify-center overflow-hidden">
       <div className="text-center">
         {/* Now Loading... */}
-        <h1 
-          className="text-white text-2xl mb-8"
+        <img 
+          src="images/now_loading.png"
+          alt='Now Loading...'
+          className='mb-8 mx-auto'
           style={{
-            fontFamily: 'Comic Sans MS, cursive',
-            letterSpacing: '2px'
+            width:'auto',
+            height: '48px'
           }}
-        >
-          Now Loading...
-        </h1>
+          />
         
         {/* 로딩 바 */}
-        <div className="relative w-[560px] h-12 border-2 border-white bg-black">
+        <div className="relative w-[570px] h-12">
+          <div className="absolute inset-0 border-2 border-white pointer-events-none z-10" />
           <div 
-            className="absolute top-0 left-0 h-full bg-white transition-all duration-300"
+            className="absolute -left-[70px] -right-[70px] -top-[50px] -bottom-[50px] overflow-hidden"
             style={{ 
-              width: `${progress}%`,
+              backgroundImage: 'url(/images/loadingbar.png)',
+              backgroundSize:'cover',
+              backgroundPosition: 'center',
             }}
-          />
+          >
+              <div 
+              className="absolute top-5 right-0 h-full bg-black transition-all duration-300"
+              style={{ 
+                width: `${100 - progress}%`,
+              }}
+              />
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
   );
 }

@@ -16,8 +16,16 @@ export default function StartPage() {
   };
 
   return (
-    <div className="w-screen h-screen bg-black flex items-center justify-center">
-      <div className="relative w-full h-full max-w-[177.78vh] max-h-[56.25vw]">
+    <div className="w-screen h-screen bg-black flex items-center justify-center overflow-hidden">
+      <div 
+      className="relative"
+      style={{
+        width: '100vw',
+        height: '56.25vw', // 16:9 비율
+        maxHeight: '100vh',
+        maxWidth: '177.78vh', // 16:9 비율
+      }}
+      >
         <Image 
           src="/images/game-screen.png"
           alt="Game Start Screen"
@@ -29,18 +37,18 @@ export default function StartPage() {
         
         {/* START 버튼 */}
         <button 
-          onClick={handleStart}
-          className="absolute cursor-pointer transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,255,255,0.8)] hover:brightness-110"
-          style={{
-            top: '41.5%',
-            right: '20.1%',
-            width: '17.2%',
-            height: '8.4%'
+        onClick={handleStart}
+        className="absolute cursor-pointer transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,255,255,0.8)] hover:brightness-110"
+        style={{
+          top: '41.5%',
+          right: '20.1%',
+          width: '17.2%',
+          height: '8.4%'
           }}
-        />
-        
-        {/* Dictionary 버튼 */}
-        <button 
+          />
+          
+          {/* Dictionary 버튼 */}
+          <button 
           onClick={handleDictionary}
           className="absolute cursor-pointer transition-all duration-300 hover:shadow-[0_0_20px_rgba(255,255,255,0.8)] hover:brightness-110"
           style={{
@@ -49,7 +57,7 @@ export default function StartPage() {
             width: '17.2%',
             height: '8.4%'
           }}
-        />
+          />
       </div>
     </div>
   );
