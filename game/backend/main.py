@@ -172,6 +172,41 @@ def end_session(body: EndIn):
         "falseCount": c_false              # judge = false 횟수
     }
     save(CASES_DB, cases_doc)
+        # --- Firebase에도 저장 (배포 서버용) ---
+    if FIREBASE_ENABLED and fb_db is not None:
+        try:
+            # 1) 플레이어별 스테이지 통계 저장
+            #    player_stats 컬렉션 안에 uid 문서 하나에 전부 모아서 저장
+            fb_db.collection("player_stats").document(uid).set(
+                {
+                    "uid": uid,
+                    "cases": user_cases,  # 이 유저가 플레이한 모든 case 통계
+                },
+                merge=True,  # 기존 데이터와 병합
+            )
+
+            # 2) 케이스별 전체 통계 저장
+            #    case_stats 컬렉션 안에 caseid 문서로 저장
+            fb_db.collection("case_stats").document(caseid).set(
+                cases[caseid],
+                merge=True,
+            )
+
+            # 3) 세션 로그도 하나씩 남기고 싶으면 (선택)
+            fb_db.collection("session_logs").add(
+                {
+                    "uid": uid,
+                    "caseid": caseid,
+                    "judge": body.judge,
+                    "elapsed": elapsed,
+                    "startTime": session["start_kst"],
+                    "endTime": end_kst,
+                }
+            )
+
+        except Exception as e:
+            print(" Firebase save failed:", e)
+    # 세션 정보는 메모리에서 삭제
 
     del SESSIONS[body.session_id]
 
