@@ -7,7 +7,7 @@
       "title": "테스트 게시물 제목1",
       "body": "테스트 게시물 내용1",
       "createdAt": "2025-11-20T02:29:53.048915+09:00",
-      "updatedAt": "2025-11-20T02:30:26.690988+09:00",
+      "updatedAt": "2025-12-04T07:51:02.308995+09:00",
       "comments": [
         {
           "commentId": "8df1f9fb-159a-499f-84a2-cc9645c656f7",
@@ -15,6 +15,13 @@
           "nickname": "BBB123",
           "body": "테스트 댓글 1",
           "createdAt": "2025-11-20T02:30:26.690972+09:00"
+        },
+        {
+          "commentId": "faea5f44-a5c1-410d-92c3-74ae364ef715",
+          "uid": "test-user",
+          "nickname": "가연",
+          "body": "댓글1\n댓글1\n댓글1",
+          "createdAt": "2025-12-04T07:51:02.308984+09:00"
         }
       ]
     },
@@ -77,6 +84,137 @@
       "updatedAt": "2025-11-23T17:41:22.667723+09:00",
       "imageUrl": null,
       "comments": []
+    },
+    {
+      "postId": "743e38a4-cf9b-4af1-af2a-440f58fd3fdd",
+      "uid": "test-user",
+      "nickname": "가연",
+      "title": "프론트 확인 글쓰기 제목1",
+      "body": "프론트 확인 글쓰기 내용1",
+      "createdAt": "2025-12-04T03:58:29.676547+09:00",
+      "updatedAt": "2025-12-04T03:58:29.676547+09:00",
+      "imageUrl": null,
+      "comments": []
+    },
+    {
+      "postId": "b6c6c1b6-123f-40b4-8920-b6eb1a307d2c",
+      "uid": "test-user",
+      "nickname": "가연",
+      "title": "이미지 테스트 제목 12/04",
+      "body": "이미지 테스트 제목 12/04",
+      "createdAt": "2025-12-04T05:58:59.756628+09:00",
+      "updatedAt": "2025-12-04T07:29:32.820594+09:00",
+      "imageUrl": "/uploads/b6c6c1b6-123f-40b4-8920-b6eb1a307d2c.jpeg",
+      "comments": [
+        {
+          "commentId": "d6ca242a-5b77-41bf-af93-b8a503b3384b",
+          "uid": "test-user",
+          "nickname": "가연",
+          "body": "테스트 댓글 1",
+          "createdAt": "2025-12-04T07:08:31.872557+09:00"
+        },
+        {
+          "commentId": "20c24d4f-2824-4206-9c86-09a78236ba71",
+          "uid": "test-user",
+          "nickname": "가연",
+          "body": "테스트 댓글 1",
+          "createdAt": "2025-12-04T07:08:36.156931+09:00"
+        },
+        {
+          "commentId": "3006be32-c946-4f4d-8c37-d496c32a55ad",
+          "uid": "test-user",
+          "nickname": "가연",
+          "body": "대스트 댓글2\n대스트 댓글2\n대스트 댓글2\n대스트 댓글2\n대스트 댓글2\n대스트 댓글2\n\n\n대스트 댓글2",
+          "createdAt": "2025-12-04T07:18:47.964221+09:00"
+        },
+        {
+          "commentId": "56fbc4c5-6b72-4a5c-a10a-82030364ff46",
+          "uid": "test-user",
+          "nickname": "가연",
+          "body": "대스트 댓글2\n대스트 댓글2",
+          "createdAt": "2025-12-04T07:18:54.221611+09:00"
+        },
+        {
+          "commentId": "a804be1d-b964-4a06-8969-08dd87b83622",
+          "uid": "test-user",
+          "nickname": "가연",
+          "body": "테스트 댓글3\n테스트 댓글3\n테스트 댓글3\n\n테스트 댓글3",
+          "createdAt": "2025-12-04T07:29:32.820583+09:00"
+        }
+      ]
+    },
+    {
+      "postId": "909b711f-fcfb-4cc9-a6a7-c7698854a49b",
+      "uid": "test-user",
+      "nickname": "가연",
+      "title": "문장 길이 테스트 제목",
+      "body": "문장 길이 테스트 내용 문장 길이 테스트 내용 문장 길이 테스트 내용 문장 길이 테스트 내용 문장 길이 테스트 내용 문장 길이 테스트 내용 문장 길이 테스트 내용 문장 길이 테스트 내용 문장 길이 테스트 내용 문장 길이 테스트 내용 문장 길이 테스트 내용 문장 길이 테스트 내용 문장 길이 테스트 내용 문장 길이 테스트 내용",
+      "createdAt": "2025-12-04T06:22:04.434271+09:00",
+      "updatedAt": "2025-12-04T06:58:34.829241+09:00",
+      "imageUrl": null,
+      "comments": [
+        {
+          "commentId": "f21f5e34-38d1-4a20-b05b-72931378e4ca",
+          "uid": "test-user",
+          "nickname": "가연",
+          "body": "댓글 테스트 12 04",
+          "createdAt": "2025-12-04T06:38:47.556472+09:00"
+        },
+        {
+          "commentId": "8b9a4b5a-0b72-429c-ab7f-95c346c4bf42",
+          "uid": "test-user",
+          "nickname": "가연",
+          "body": "댓글 길이 테스트 12 04",
+          "createdAt": "2025-12-04T06:38:56.565725+09:00"
+        },
+        {
+          "commentId": "b20e595c-8f71-4e22-ba04-079f4e1a5ffa",
+          "uid": "test-user",
+          "nickname": "가연",
+          "body": "댓글 길이 테스트 12 04댓글 길이 테스트 12 04댓글 길이 테스트 12 04댓글 길이 테스트 12 04댓글 길이 테스트 12 04댓글 길이 테스트 12 04댓글 길이 테스트 12 04댓글 길이 테스트 12 04댓글 길이 테스트 12 04댓글 길이 테스트 12 04댓글 길이 테스트 12 04",
+          "createdAt": "2025-12-04T06:39:00.270398+09:00"
+        },
+        {
+          "commentId": "e0ff89a0-fa59-4702-8c40-f85471f705ba",
+          "uid": "test-user",
+          "nickname": "가연",
+          "body": "댓글 길이 테스트 12 04",
+          "createdAt": "2025-12-04T06:39:06.219473+09:00"
+        },
+        {
+          "commentId": "c85c32d7-12df-4459-a560-df3a03a37dd6",
+          "uid": "test-user",
+          "nickname": "가연",
+          "body": "댓글 길이 테스트 12 04",
+          "createdAt": "2025-12-04T06:58:31.592952+09:00"
+        },
+        {
+          "commentId": "0ccecd9b-c113-450f-b7aa-09449f56921b",
+          "uid": "test-user",
+          "nickname": "가연",
+          "body": "댓글 길이 테스트 12 04",
+          "createdAt": "2025-12-04T06:58:34.829212+09:00"
+        }
+      ]
+    },
+    {
+      "postId": "ae6c8e66-70d7-400f-aaa0-9c162665a7e3",
+      "uid": "test-user",
+      "nickname": "가연",
+      "title": "커뮤니티 테스트 07:54",
+      "body": "커뮤니티 테스트 내용 07:54",
+      "createdAt": "2025-12-04T07:54:46.429191+09:00",
+      "updatedAt": "2025-12-04T07:55:04.630476+09:00",
+      "imageUrl": "/uploads/ae6c8e66-70d7-400f-aaa0-9c162665a7e3.png",
+      "comments": [
+        {
+          "commentId": "2897367c-45ed-44e0-85cf-64caa518f955",
+          "uid": "test-user",
+          "nickname": "가연",
+          "body": "댓글 테스트 1\n댓글 테스트 1\n댓글 테스트 1",
+          "createdAt": "2025-12-04T07:55:04.630464+09:00"
+        }
+      ]
     }
   ]
 }

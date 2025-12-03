@@ -1,12 +1,41 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 function WritePostModal({ open, onClose, onSubmit }) {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [imageName, setImageName] = useState("");
+
+  const fileInputRef = useRef(null);
 
   const TITLE_LIMIT = 20;
 
   if (!open) return null;
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setImageName(file.name);
+    } else {
+      setImageFile(null);
+      setImageName("");
+    }
+  };
+
+  const handleReset = () => {
+    setTitle("");
+    setContent("");
+    setImageFile(null);
+    setImageName("");
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -22,11 +51,11 @@ function WritePostModal({ open, onClose, onSubmit }) {
     onSubmit?.({
       title: trimmedTitle,
       content: trimmedContent,
+      image: imageFile,
     });
 
     // 초기화 + 닫기
-    setTitle("");
-    setContent("");
+    handleReset();
     onClose();
   };
 
@@ -89,16 +118,27 @@ function WritePostModal({ open, onClose, onSubmit }) {
               <button
                 type="button"
                 className="write-icon-btn"
-                onClick={() => {
-                  setTitle("");
-                  setContent("");
-                }}
+                onClick={handleReset}
               >
                 🧹
               </button>
-              <button type="button" className="write-icon-btn">
+              <button
+                type="button"
+                className="write-icon-btn"
+                onClick={handleImageClick}
+              >
                 🖼️
               </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: "none" }}
+                onChange={handleImageChange}
+              />
+              {imageName && (
+                <span className="write-selected-image">{imageName}</span>
+              )}
             </div>
 
             <button type="submit" className="write-submit-btn">

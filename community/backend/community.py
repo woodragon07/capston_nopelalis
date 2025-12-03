@@ -1,4 +1,3 @@
-# community.py
 from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from pydantic import BaseModel
 from pathlib import Path
