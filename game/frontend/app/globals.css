@@ -1,31 +1,98 @@
-
-
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 @font-face {
-  font-family: 'Kyobo Handwriting 2019';
-  src: url('/fonts/Kyobo2019.ttf') format('truetype');
+  font-family: 'BMKkubulimTTF';
+  src: url('/fonts/BMKkubulimTTF.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
 }
 
+:root {
+  --font-bm: 'BMKkubulimTTF', serif;
+}
+
+@layer components {
+  /* 게임 컨테이너 */
+  .game-container {
+    @apply relative;
+    width: 100vw;
+    height: 56.25vw;
+    max-height: 100vh;
+    max-width: 177.78vh;
+  }
+
+  /* 공통 버튼 */
+  .game-button {
+    @apply absolute cursor-pointer transition-all duration-300 z-10;
+  }
+  
+  .game-button-hover {
+    @apply hover:shadow-[0_0_20px_rgba(255,255,255,0.8)] hover:brightness-110;
+  }
+  
+  .game-button-disabled {
+    @apply cursor-not-allowed opacity-50;
+  }
+
+  /* 탭 버튼 */
+  .game-tab-button {
+    position: absolute;
+    right: 6.8%;
+    width: 3%;
+    height: 10%;
+    border-radius: 40%;
+  }
+  
+  .menu-button-text {
+    writing-mode: vertical-rl;
+    font-size: 1.2vw;
+    transition: all 0.3s ease;
+    font-family: var(--font-bm);
+  }
+
+  /* 메인 패널 */
+  .game-main-panel {
+    position: absolute;
+    top: 11.8%;
+    left: 31.7%;
+    width: 58.4%;
+    height: 73%;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 13.4% 100%, 0 81%);
+  }
+
+  /* 탭 콘텐츠 */
+  .tab-content {
+    @apply absolute overflow-y-auto text-white p-4;
+    top: 15%;
+    left: 78%;
+    width: 90%;
+    height: 80%;
+    font-size: 1.4vw;
+    transform: translateX(-50%);
+    font-family: var(--font-bm);
+  }
+
+  /* 인트로 모달 */
+  .game-intro-overlay {
+    @apply absolute inset-0 flex items-center justify-center bg-black/70 z-30;
+  }
+  
+  .game-intro-box {
+    @apply w-[60%] bg-black text-white border border-white/40 p-8 rounded-xl shadow-2xl;
+  }
+
+  /* 케이스 선택 버튼 - @apply font-bm 완전 제거 */
+  .case-select-btn {
+    @apply text-lg md:text-xl rounded-xl transition-all h-[16%] w-full;
+    font-family: var(--font-bm);
+  }
+  
+  .case-select-btn--active {
+    @apply bg-white text-black hover:scale-[1.02];
+  }
+  
+  .case-select-btn--inactive {
+    @apply bg-white/20 text-white hover:bg-white/40 hover:scale-[1.02];
+  }
+}

@@ -1,255 +1,185 @@
 'use client';
 
-import { useState } from 'react';
 import Image from 'next/image';
-import DocumentContent, { TAB_NAME as DOC_NAME } from './components/DocumentContent';
-import SNSContent, { TAB_NAME as SNS_NAME } from './components/SNSContent';
-import VideoContent, { TAB_NAME as VIDEO_NAME } from './components/VideoContent';
-import EtcContent, { TAB_NAME as ETC_NAME } from './components/EtcContent';
+import { useState } from 'react';
+import { CASES, type CaseData, type TabType } from './cases';
 
-type TabType = 'document' | 'sns' | 'video' | 'etc';
+const MENU_BUTTONS: { tab: TabType; name: string; top: string }[] = [
+  { tab: 'document', name: '문서', top: '19.5%' },
+  { tab: 'sns', name: 'SNS', top: '36.3%' },
+  { tab: 'video', name: '영상', top: '53.3%' },
+  { tab: 'etc', name: '기타', top: '70%' },
+];
+
+const VERDICT_BUTTONS = {
+  guilty: { top: '57.7%', right: '84.1%', width: '10.3%', height: '6.4%' },
+  innocent: { top: '57.7%', right: '72.4%', width: '10.3%', height: '6.4%' },
+} as const;
+
+type GameState = 'case-selection' | 'intro' | 'playing';
 
 export default function GameScreen() {
   const [currentTab, setCurrentTab] = useState<TabType>('document');
-  const [isGameStarted, setIsGameStarted] = useState(false); // 게임 시작 상태 추가
-  const [caseNumber] = useState(1); // 사건번호 상태
+  const [currentCaseId, setCurrentCaseId] = useState(1);
+  const [gameState, setGameState] = useState<GameState>('case-selection');
 
-  const gilty = () => {
-    alert("gilty!!!")
-  }
-  
-  const innocent = () => {
-    alert("innocent!!!")
-  }
+  const selectedCase: CaseData = CASES.find((c) => c.id === currentCaseId) ?? CASES[0];
 
-  const renderContent = () => {
-    // 게임이 시작되지 않았으면 사건번호 표시
-    if (!isGameStarted) {
-      return (
-        <div className="w-full h-full flex items-center justify-center">
-          <h2 className="text-4xl font-bold" style={{ fontFamily: 'var(--font-bm)' }}>
-            사건번호 {caseNumber}
-          </h2>
-        </div>
-      );
-    }
+  const isGameActive = gameState === 'playing';
 
-    // 게임 시작 후 탭별 콘텐츠 표시
-    switch(currentTab) {
-      case 'document':
-        return <DocumentContent />;
-      case 'sns':
-        return <SNSContent />;
-      case 'video':
-        return <VideoContent />;
-      case 'etc':
-        return <EtcContent />;
-      default:
-        return <DocumentContent />;
+  // 핸들러들 통합
+  const handleCaseSelect = (id: number) => {
+    setCurrentCaseId(id);
+    setGameState('intro');
+  };
+
+  const handleStartGame = () => {
+    setGameState('playing');
+  };
+
+  const handleVerdict = (verdict: 'guilty' | 'innocent') => {
+    if (!isGameActive) return;
+
+    const isCorrect = (verdict === 'innocent' && selectedCase.is_innocent) ||
+    (verdict === 'guilty' && !selectedCase.is_innocent);
+
+    if (isCorrect) {
+      alert('🎉 정답입니다!');
+    } else {
+      alert('❌ 오답입니다!');
     }
   };
 
-  return (
-    <div className="w-screen h-screen bg-black flex items-center justify-center overflow-hidden">
-      <div 
-        className="relative"
+  const renderCaseSelection = () => (
+    <div className="relative w-full h-full">
+      <div
+        className="absolute flex flex-col gap-[6%]"
         style={{
-          width: '100vw',
-          height: '56.25vw',
-          maxHeight: '100vh',
-          maxWidth: '177.78vh',
+          top: '23%',
+          left: '53%',
+          width: '75%',
+          height: '60%',
+          transform: 'translateX(-50%)',
         }}
       >
-        <Image 
-          src="/images/game-background.png"
-          alt="Game Background"
-          fill
-          className="object-contain select-none pointer-events-none"
-          priority
-          quality={100}
-        />
-
-        {/* 중앙 콘텐츠 영역 */}
-        <div className="absolute" style={{
-          top: '11.8%',
-          left: '31.7%',
-          width: '58.4%',
-          height: '73%',
-          clipPath: 'polygon(0 0, 100% 0, 100% 100%, 13.4% 100%, 0 81%)'
-        }}>
-          {renderContent()}
-        </div>
-
-        {/* 4개의 메뉴 버튼 - 게임 시작 전에는 클릭 불가 */}
-        <button
-          onClick={() => isGameStarted && setCurrentTab('document')}
-          disabled={!isGameStarted}
-          className={`absolute transition-all duration-300
-            ${!isGameStarted ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-            ${currentTab === 'document' && isGameStarted ? 'bg-black/25' : ''}`}
-          style={{
-            top: '17%',
-            right: '6.8%',
-            width: '3%',
-            height: '15%',
-            writingMode: 'vertical-rl',
-            fontSize: '1.2vw',
-            fontFamily: 'var(--font-bm)',
-            clipPath: 'polygon(0 0, 100% 10%, 100% 90%, 0% 100%)',
-          }}
-        >
-          {DOC_NAME}
-        </button>
-        <button
-          onClick={() => isGameStarted && setCurrentTab('sns')}
-          disabled={!isGameStarted}
-          className={`absolute transition-all duration-300
-            ${!isGameStarted ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-            ${currentTab === 'sns' && isGameStarted ? 'bg-black/25' : ''}`}
-          style={{
-            top: '33.8%',
-            right: '6.8%',
-            width: '3%',
-            height: '15%',
-            writingMode: 'vertical-rl',
-            fontSize: '1.2vw',
-            fontFamily: 'var(--font-bm)',
-            clipPath: 'polygon(0 0, 100% 10%, 100% 90%, 0% 100%)',
-          }}
-        >
-          {SNS_NAME}
-        </button>
-
-        <button
-          onClick={() => isGameStarted && setCurrentTab('video')}
-          disabled={!isGameStarted}
-          className={`absolute transition-all duration-300
-            ${!isGameStarted ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-            ${currentTab === 'video' && isGameStarted ? 'bg-black/25' : ''}`}
-          style={{
-            top: '50.3%',
-            right: '6.8%',
-            width: '3%',
-            height: '15%',
-            writingMode: 'vertical-rl',
-            fontSize: '1.2vw',
-            fontFamily: 'var(--font-bm)',
-            clipPath: 'polygon(0 0, 100% 10%, 100% 90%, 0% 100%)',
-          }}
-        >
-          {VIDEO_NAME}
-        </button>
-        <button
-          onClick={() => isGameStarted && setCurrentTab('etc')}
-          disabled={!isGameStarted}
-          className={`absolute transition-all duration-300
-            ${!isGameStarted ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}
-            ${currentTab === 'etc' && isGameStarted ? 'bg-black/25' : ''}`}
-          style={{
-            top: '67.3%',
-            right: '6.8%',
-            width: '3%',
-            height: '15%',
-            writingMode: 'vertical-rl',
-            fontSize: '1.2vw',
-            fontFamily: 'var(--font-bm)',
-            clipPath: 'polygon(0 0, 100% 10%, 100% 90%, 0% 100%)',
-          }}
-        >
-          {ETC_NAME}
-        </button>
-
-        {/* 유죄 무죄 버튼 - 게임 시작 전에는 클릭 불가 */}
-        <button
-          onClick={gilty}
-          disabled={!isGameStarted}
-          className={`absolute transition-all duration-300
-            ${!isGameStarted ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:shadow-[0_0_20px_rgba(255,255,255,0.8)] hover:brightness-110'}`}
-          style={{
-            top: '57.7%',
-            right: '84.1%',
-            width: '10.3%',
-            height: '6.4%'
-          }}
-        />
-        <button
-          onClick={innocent}
-          disabled={!isGameStarted}
-          className={`absolute transition-all duration-300
-            ${!isGameStarted ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:shadow-[0_0_20px_rgba(255,255,255,0.8)] hover:brightness-110'}`}
-          style={{
-            top: '57.7%',
-            right: '72.4%',
-            width: '10.3%',
-            height: '6.4%'
-          }}
-        />
-
-        {/* 4개의 메뉴 버튼 (오른쪽) - 게임 시작 전에는 클릭 불가 */}
-        <button
-          onClick={() => isGameStarted && setCurrentTab('document')}
-          disabled={!isGameStarted}
-          className={`absolute transition-all duration-300
-            ${!isGameStarted ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:brightness-110'}
-            ${currentTab === 'document' && isGameStarted ? 'brightness-125' : ''}`}
-          style={{
-            top: '15%',
-            right: '2%',
-            width: '7%',
-            height: '12%'
-          }}
-        />
-        <button
-          onClick={() => isGameStarted && setCurrentTab('sns')}
-          disabled={!isGameStarted}
-          className={`absolute transition-all duration-300
-            ${!isGameStarted ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:brightness-110'}
-            ${currentTab === 'sns' && isGameStarted ? 'brightness-125' : ''}`}
-          style={{
-            top: '30%',
-            right: '2%',
-            width: '7%',
-            height: '12%'
-          }}
-        />
-        <button
-          onClick={() => isGameStarted && setCurrentTab('video')}
-          disabled={!isGameStarted}
-          className={`absolute transition-all duration-300
-            ${!isGameStarted ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:brightness-110'}
-            ${currentTab === 'video' && isGameStarted ? 'brightness-125' : ''}`}
-          style={{
-            top: '45%',
-            right: '2%',
-            width: '7%',
-            height: '12%'
-          }}
-        />
-        <button
-          onClick={() => isGameStarted && setCurrentTab('etc')}
-          disabled={!isGameStarted}
-          className={`absolute transition-all duration-300
-            ${!isGameStarted ? 'cursor-not-allowed opacity-50' : 'cursor-pointer hover:brightness-110'}
-            ${currentTab === 'etc' && isGameStarted ? 'brightness-125' : ''}`}
-          style={{
-            top: '60%',
-            right: '2%',
-            width: '7%',
-            height: '12%'
-          }}
-        />
-
-        {/* 게임 시작 버튼 (예시) - 필요시 추가 */}
-        {!isGameStarted && (
+        {CASES.map((c) => (
           <button
-            onClick={() => setIsGameStarted(true)}
-            className="absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-10 px-8 py-4 bg-white text-black font-bold rounded hover:bg-gray-200"
-            style={{ fontFamily: 'var(--font-bm)' }}
+            key={c.id}
+            onClick={() => handleCaseSelect(c.id)}
+            className={`
+              case-select-btn
+              ${currentCaseId === c.id ? 'case-select-btn--active' : 'case-select-btn--inactive'}
+            `}
           >
-            게임 시작
+            CASE {c.id} : {c.summary}
           </button>
-        )}
+        ))}
       </div>
     </div>
+  );
+
+  const renderTabContent = () => {
+    if (gameState !== 'playing') return null;
+
+    const { document: DocumentComp, sns: SNSComp, video: VideoComp, etc: EtcComp } = selectedCase.contents;
+    
+    return (
+      <>
+        {currentTab === 'document' && <DocumentComp />}
+        {currentTab === 'sns' && <SNSComp />}
+        {currentTab === 'video' && <VideoComp />}
+        {currentTab === 'etc' && <EtcComp />}
+      </>
+    );
+  };
+
+  const renderTabButtons = () =>
+    MENU_BUTTONS.map(({ tab, name, top }) => (
+      <button
+        key={`tab-${tab}`}
+        onClick={() => isGameActive && setCurrentTab(tab)}
+        disabled={!isGameActive}
+        className={`
+          game-button menu-button-text game-tab-button font-bold
+          ${!isGameActive ? 'game-button-disabled' : 'game-button-hover'}
+          ${currentTab === tab && isGameActive ? 'shadow-[0_0_20px_rgba(255,255,255,0.8)] opacity-100' : 'opacity-50'}
+        `}
+        style={{ top }}
+      >
+        {name}
+      </button>
+    ));
+
+  const renderVerdictButtons = () => (
+    <>
+      <button
+        onClick={() => handleVerdict('guilty')}
+        disabled={!isGameActive}
+        className={`game-button z-20 ${!isGameActive ? 'game-button-disabled' : 'game-button-hover'}`}
+        style={VERDICT_BUTTONS.guilty}
+      />
+      <button
+        onClick={() => handleVerdict('innocent')}
+        disabled={!isGameActive}
+        className={`game-button z-20 ${!isGameActive ? 'game-button-disabled' : 'game-button-hover'}`}
+        style={VERDICT_BUTTONS.innocent}
+      />
+    </>
+  );
+
+  const renderIntroModal = () => (
+    <div className="game-intro-overlay">
+      <div className="game-intro-box">
+        <div className="mb-4 text-2xl font-bold font-bm">{selectedCase.characterName}</div>
+        <div className="text-lg leading-relaxed mb-6 font-bm">{selectedCase.introScript}</div>
+        <div className="flex justify-end gap-4">
+          <button
+            onClick={() => setGameState('case-selection')}
+            className="px-4 py-2 border border-white/30 text-white rounded hover:bg-neutral-900 font-bm"
+          >
+            나중에 보기
+          </button>
+          <button
+            onClick={handleStartGame}
+            className="px-6 py-2 bg-white text-black rounded font-bold font-bm game-button-hover"
+          >
+            사건 시작
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <>
+      {/* 캐릭터 이미지 */}
+      {isGameActive && (
+        <div
+          className="absolute"
+          style={{ bottom: '52.4%', left: '1%', width: '31%', height: '31%' }}
+        >
+          <Image
+            src={selectedCase.characterImage}
+            alt={selectedCase.characterName}
+            fill
+            className="object-contain"
+          />
+        </div>
+      )}
+
+      {/* 메인 패널 */}
+      <div className="game-main-panel">
+        {gameState === 'case-selection' ? renderCaseSelection() : renderTabContent()}
+      </div>
+
+      {/* 탭 버튼들 */}
+      {renderTabButtons()}
+
+      {/* 판결 버튼들 */}
+      {renderVerdictButtons()}
+
+      {/* 인트로 모달 */}
+      {gameState === 'intro' && renderIntroModal()}
+    </>
   );
 }
