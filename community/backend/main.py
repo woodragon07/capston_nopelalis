@@ -34,8 +34,7 @@ app.include_router(
 )
 
 # ----- 업로드 폴더 Static 마운트 -----
-# community.py에서 UPLOAD_DIR = Path("uploads")로 쓰고 있으니
-# 같은 폴더를 정적 파일로 노출
+# community.py에서 UPLOAD_DIR = Path("uploads")로 쓰고 있으니 같은 폴더를 정적 파일로 노출
 UPLOAD_DIR = Path("uploads")
 UPLOAD_DIR.mkdir(exist_ok=True)
 
