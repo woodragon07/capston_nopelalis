@@ -3,17 +3,28 @@ import "./globals.css";
 import localFont from 'next/font/local';
 import ZoomPrevent from "./components/ZoomPrevent";
 
+
 const bmFont = localFont({
-  src: '../public/fonts/BMKkubulimTTF.ttf', // 또는 .woff, .woff2
+  src: '../public/fonts/BMKkubulimTTF.ttf',
   variable: '--font-bm',
   display: 'swap',
 });
 
+
 export const metadata: Metadata = {
   title: "PLEASE",
   description: 'Truth has no witness, only survivors',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no',
+  // viewport 제거 (아래로 분리)
 };
+
+// viewport를 별도로 export
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 
 export default function RootLayout({
   children,
