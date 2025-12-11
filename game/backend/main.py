@@ -125,6 +125,14 @@ def end_session(body: EndIn):
     old_count = prev.get("playCount", 0) if prev else 0
     old_avg = prev.get("avgTimeSeconds", 0.0) if prev else 0.0
 
+     #--------------
+    # 기존 클리어 횟수 가져오기 (없으면 0)
+    old_clear = prev.get("clearCount", 0) if prev else 0
+    
+    # 이번 판이 정답(judge=True)이면 +1, 아니면 그대로
+    new_clear = old_clear + 1 if body.judge else old_clear
+    #----------------
+
     new_count = old_count + 1
     new_total = old_avg * old_count + elapsed
     new_avg = new_total / new_count if new_count else 0.0
@@ -138,6 +146,7 @@ def end_session(body: EndIn):
         "judge": body.judge,                # 이번 판 결과
         "avgTimeSeconds": new_avg,          # 이 유저가 이 스테이지를 플레이한 평균 시간
         "playCount": new_count,             # 이 유저의 이 스테이지 누적 플레이 횟수
+        "clearCount": new_clear,            # 클리어 횟수
     }
     players[uid] = user_cases
     save(PLAYERS_DB, players_doc)
