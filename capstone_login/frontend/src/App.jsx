@@ -30,6 +30,8 @@ function App() {
 
       alert(`${user.email}님 환영합니다!`);
       // navigate("/main"); // 로그인 성공 후 이동할 페이지가 있다면 주석 해제
+      // 토큰을 받아서 URL 뒤에 붙여서 보냅니다.
+      window.location.href = `https://game-frontend-dkbs.onrender.com/?token=${token}`;
       
     } catch (error) {
       console.error("로그인 에러:", error);

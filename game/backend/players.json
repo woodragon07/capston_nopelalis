@@ -8,7 +8,8 @@
         "endTime": "2025-11-20T01:38:12.522093+09:00",
         "judge": true,
         "avgTimeSeconds": 23.0,
-        "playCount": 4
+        "playCount": 4,
+        "clearCount": 0
       },
       "2": {
         "uid": "aaa123",
@@ -17,7 +18,8 @@
         "endTime": "2025-11-20T01:38:38.707271+09:00",
         "judge": true,
         "avgTimeSeconds": 12.5,
-        "playCount": 2
+        "playCount": 2,
+        "clearCount": 0
       },
       "3": {
         "uid": "aaa123",
@@ -26,7 +28,8 @@
         "endTime": "2025-11-20T01:39:10.464133+09:00",
         "judge": true,
         "avgTimeSeconds": 12.5,
-        "playCount": 2
+        "playCount": 2,
+        "clearCount": 0
       }
     },
     "bbb123": {
@@ -37,7 +40,8 @@
         "endTime": "2025-11-20T01:21:52.669353+09:00",
         "judge": false,
         "avgTimeSeconds": 13.0,
-        "playCount": 1
+        "playCount": 1,
+        "clearCount": 0
       },
       "2": {
         "uid": "bbb123",
@@ -46,7 +50,32 @@
         "endTime": "2025-11-20T01:40:09.828986+09:00",
         "judge": true,
         "avgTimeSeconds": 13.5,
-        "playCount": 2
+        "playCount": 2,
+        "clearCount": 0
+      }
+    },
+    "ddd111": {
+      "1": {
+        "uid": "ddd111",
+        "caseid": "1",
+        "startTime": "2025-12-11T21:49:09.674951+09:00",
+        "endTime": "2025-12-11T21:49:22.497027+09:00",
+        "judge": true,
+        "avgTimeSeconds": 13.0,
+        "playCount": 1,
+        "clearCount": 1
+      }
+    },
+    "asd123": {
+      "1": {
+        "uid": "asd123",
+        "caseid": "1",
+        "startTime": "2025-12-11T21:49:44.352173+09:00",
+        "endTime": "2025-12-11T21:49:56.869007+09:00",
+        "judge": true,
+        "avgTimeSeconds": 12.0,
+        "playCount": 1,
+        "clearCount": 1
       }
     }
   }

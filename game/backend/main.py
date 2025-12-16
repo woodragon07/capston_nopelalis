@@ -30,6 +30,10 @@ if cred_json:
         print("Firebase init failed:", e)
 else:
     print("FIREBASE_CREDENTIALS env not set, running without Firebase")
+
+# 1. 현재 파일(main.py)이 있는 폴더의 절대 경로 구하기
+BASE_DIR = Path(__file__).resolve().parent
+
 # -- CORS 설정 및 정적 파일 서빙 ---
 app.add_middleware(
     CORSMiddleware,
@@ -38,14 +42,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-UPLOAD_DIR = Path("uploads")
+# 3. 모든 경로를 BASE_DIR 기준으로 설정 (backend 폴더 안으로 고정)
+UPLOAD_DIR = BASE_DIR / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR), name="uploads")
 app.include_router(community_router, prefix="/community", tags=["community"])
 
 # --- JSON 파일 경로 ---
-PLAYERS_DB = Path("players.json")  # 각 플레이어 × 스테이지 통계
-CASES_DB = Path("cases.json")      # Case 전체 통계
+PLAYERS_DB = BASE_DIR / "players.json"  # 각 플레이어 × 스테이지 통계
+CASES_DB = BASE_DIR / "cases.json"      # Case 전체 통계
 
 # --- 세션(시작~종료 구간)은 메모리에만 유지 ---
 SESSIONS: Dict[str, dict] = {}
@@ -125,6 +130,14 @@ def end_session(body: EndIn):
     old_count = prev.get("playCount", 0) if prev else 0
     old_avg = prev.get("avgTimeSeconds", 0.0) if prev else 0.0
 
+     #--------------
+    # 기존 클리어 횟수 가져오기 (없으면 0)
+    old_clear = prev.get("clearCount", 0) if prev else 0
+    
+    # 이번 판이 정답(judge=True)이면 +1, 아니면 그대로
+    new_clear = old_clear + 1 if body.judge else old_clear
+    #----------------
+
     new_count = old_count + 1
     new_total = old_avg * old_count + elapsed
     new_avg = new_total / new_count if new_count else 0.0
@@ -138,6 +151,7 @@ def end_session(body: EndIn):
         "judge": body.judge,                # 이번 판 결과
         "avgTimeSeconds": new_avg,          # 이 유저가 이 스테이지를 플레이한 평균 시간
         "playCount": new_count,             # 이 유저의 이 스테이지 누적 플레이 횟수
+        "clearCount": new_clear,            # 클리어 횟수
     }
     players[uid] = user_cases
     save(PLAYERS_DB, players_doc)
