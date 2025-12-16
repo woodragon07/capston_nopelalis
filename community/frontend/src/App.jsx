@@ -59,7 +59,8 @@ function App() {
   };
 
 
-  // ✅ (지금은 프론트 전용) 글쓰기 시 리스트에만 추가
+  // ✅ (지금은 프론트 전용) 글쓰기 시 리스트에만 추가 
+  // 12/17 - 백엔드 연동 수정 , 토큰화
   const handleSubmitWrite = async ({ title, content, image }) => {
     try {
     const token = await auth.currentUser?.getIdToken();
