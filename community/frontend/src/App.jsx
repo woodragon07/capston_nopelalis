@@ -3,6 +3,7 @@ import './App.css'
 import BoardPage from './BoardPage';
 import PostDetail from './PostDetail';
 import WritePostModal from './WritePostModal';
+import { auth } from "./firebase"; 
 
 const NOTICES_PER_PAGE = 4;
 const API_BASE_URL = "http://localhost:8000";
@@ -57,22 +58,29 @@ function App() {
     setIsWriteOpen(false);
   };
 
+
   // ✅ (지금은 프론트 전용) 글쓰기 시 리스트에만 추가
   const handleSubmitWrite = async ({ title, content, image }) => {
     try {
-      const form = new FormData();
-      form.append("uid", "test-user");       // 임시 사용자 정보
-      form.append("nickname", "가연");       // 임시 닉네임
-      form.append("title", title);
-      form.append("body", content);
-      if (image) {
-        form.append("image", image);
-      }
+    const token = await auth.currentUser?.getIdToken();
+    if (!token) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
 
-      const res = await fetch("http://localhost:8000/community/posts", {
-        method: "POST",
-        body: form,
-      });
+    const form = new FormData();
+    form.append("nickname", "가연"); // 일단 임시로 두어도 됨(나중에 users에서 가져오면 더 좋음)
+    form.append("title", title);
+    form.append("body", content);
+    if (image) form.append("image", image);
+
+    const res = await fetch("http://localhost:8000/community/posts", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: form,
+    });
 
       if (!res.ok) {
         throw new Error(`HTTP 오류: ${res.status}`);
