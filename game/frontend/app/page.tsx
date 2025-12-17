@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
+import { Suspense, useEffect } from 'react';
 
 // 버튼 위치 상수 분리
 const BUTTON_POSITIONS = {
@@ -10,18 +10,17 @@ const BUTTON_POSITIONS = {
   dictionary: { top: '53.8%', right: '20.1%', width: '17.2%', height: '8.4%' },
 } as const;
 
-export default function StartPage() {
+function StartPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  //  login에서 넘어온 token을 game 도메인 localStorage에 저장
+  
   useEffect(() => {
     const token = searchParams.get('token');
     if (token) {
       localStorage.setItem('idToken', token);
-      console.log('✅ token saved to localStorage (idToken)');
+      console.log(' token saved to localStorage (idToken)');
     } else {
-      console.log('⚠️ token not found in URL');
+      console.log(' token not found in URL');
     }
   }, [searchParams]);
 
@@ -40,14 +39,12 @@ export default function StartPage() {
           quality={100}
         />
 
-        {/* START 버튼 */}
         <button
           onClick={handleStart}
           className="game-button game-button-hover"
           style={BUTTON_POSITIONS.start}
         />
 
-        {/* Dictionary 버튼 */}
         <button
           onClick={handleDictionary}
           className="game-button game-button-hover"
@@ -55,5 +52,13 @@ export default function StartPage() {
         />
       </div>
     </div>
+  );
+}
+
+export default function StartPage() {
+  return (
+    <Suspense fallback={<div className="w-screen h-screen" />}>
+      <StartPageInner />
+    </Suspense>
   );
 }
