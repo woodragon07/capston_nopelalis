@@ -4,6 +4,7 @@ import BoardPage from './BoardPage';
 import PostDetail from './PostDetail';
 import WritePostModal from './WritePostModal';
 import { auth } from "./firebase";
+import { signInWithCustomToken } from "firebase/auth";
 import { API_BASE_URL, toAbsoluteUrl } from "./apiConfig";
 
 const NOTICES_PER_PAGE = 4;
@@ -68,22 +69,64 @@ function App() {
     if (typeof window === "undefined") return;
 
     const params = new URLSearchParams(window.location.search);
-    const tokenFromUrl = params.get("token");
+    const tokenFromUrl =
+      params.get("token") ||
+      params.get("idToken") ||
+      params.get("id_token") ||
+      params.get("customToken");
+    const ssoCode = params.get("code");
 
-    if (tokenFromUrl) {
-      localStorage.setItem("idToken", tokenFromUrl);
-      setIdToken(tokenFromUrl);
-
-      params.delete("token");
+    const cleanUrl = () => {
+      ["token", "idToken", "id_token", "customToken", "code"].forEach((key) => params.delete(key));
       const newSearch = params.toString();
       const newUrl = `${window.location.pathname}${newSearch ? `?${newSearch}` : ""}${window.location.hash}`;
       window.history.replaceState({}, "", newUrl);
-      return;
-    }
+    };
 
-    // 이미 저장된 토큰이 있다면 state에 반영
-    const saved = localStorage.getItem("idToken");
-    if (saved) setIdToken(saved);
+    const bootstrapAuth = async () => {
+      let finalToken = null;
+
+      try {
+        if (ssoCode) {
+          const res = await fetch(`${API_BASE_URL}/community/sso/consume`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ code: ssoCode }),
+          });
+
+          if (!res.ok) {
+            const t = await res.text().catch(() => "");
+            throw new Error(`SSO consume 실패: ${res.status} ${t}`);
+          }
+
+          const data = await res.json();
+          await signInWithCustomToken(auth, data.customToken);
+          finalToken = await auth.currentUser?.getIdToken();
+        } else if (tokenFromUrl) {
+          // custom token일 수도 있고, 이미 발급된 ID 토큰일 수도 있다.
+          try {
+            await signInWithCustomToken(auth, tokenFromUrl);
+            finalToken = await auth.currentUser?.getIdToken();
+          } catch (_) {
+            finalToken = tokenFromUrl; // ID 토큰이면 바로 사용
+          }
+        }
+      } catch (err) {
+        console.error("토큰 초기화 실패:", err);
+      }
+
+      if (finalToken) {
+        localStorage.setItem("idToken", finalToken);
+        setIdToken(finalToken);
+      } else {
+        const saved = localStorage.getItem("idToken");
+        if (saved) setIdToken(saved);
+      }
+
+      cleanUrl();
+    };
+
+    bootstrapAuth();
   }, []);
 
   const getIdToken = async () => {
