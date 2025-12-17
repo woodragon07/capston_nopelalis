@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import BoardPage from './BoardPage';
 import PostDetail from './PostDetail';
 import WritePostModal from './WritePostModal';
-import { auth } from "./firebase"; 
+import { auth } from "./firebase";
 import { API_BASE_URL, toAbsoluteUrl } from "./apiConfig";
 
 const NOTICES_PER_PAGE = 4;
@@ -20,6 +20,12 @@ const NOTICE_DATA = [
 function App() {
   const [selectedMenu, setSelectedMenu] = useState("notice");
   const [selectedPost, setSelectedPost] = useState(null);
+
+  // 로그인 토큰 보관
+  const [idToken, setIdToken] = useState(() => {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem("idToken");
+  });
 
   // 커뮤 글 리스트
   const [communityData, setCommunityData] = useState([]);
@@ -57,10 +63,47 @@ function App() {
     setIsWriteOpen(false);
   };
 
+  // URL 쿼리에 token이 있으면 localStorage에 저장하고 주소창을 정리한다.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const tokenFromUrl = params.get("token");
+
+    if (tokenFromUrl) {
+      localStorage.setItem("idToken", tokenFromUrl);
+      setIdToken(tokenFromUrl);
+
+      params.delete("token");
+      const newSearch = params.toString();
+      const newUrl = `${window.location.pathname}${newSearch ? `?${newSearch}` : ""}${window.location.hash}`;
+      window.history.replaceState({}, "", newUrl);
+      return;
+    }
+
+    // 이미 저장된 토큰이 있다면 state에 반영
+    const saved = localStorage.getItem("idToken");
+    if (saved) setIdToken(saved);
+  }, []);
+
+  const getIdToken = async () => {
+    // 1) URL/스토리지에서 받은 토큰 우선 사용
+    const stored = idToken || localStorage.getItem("idToken");
+    if (stored) return stored;
+
+    // 2) 커뮤니티 도메인에서 이미 로그인된 Firebase 세션이 있다면 그 토큰 사용
+    const token = await auth.currentUser?.getIdToken();
+    if (token) {
+      localStorage.setItem("idToken", token);
+      setIdToken(token);
+    }
+    return token;
+  };
+
   // ✅ 글쓰기 (토큰 + 백엔드 연동)
   const handleSubmitWrite = async ({ title, content, image }) => {
     try {
-      const token = await auth.currentUser?.getIdToken();
+      const token = await getIdToken();
       if (!token) {
         alert("로그인이 필요합니다.");
         return;
@@ -193,6 +236,7 @@ function App() {
           <PostDetail
             post={selectedPost}
             onBack={handleBackToList}
+            getToken={getIdToken}
             onCommentAdded={handleCommentAdded}
           />
         ) : selectedMenu === "community" ? (

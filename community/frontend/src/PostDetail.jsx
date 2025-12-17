@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { API_BASE_URL, toAbsoluteUrl } from "./apiConfig";
 
-function PostDetail({ post, onBack, onCommentAdded }) {
+function PostDetail({ post, onBack, onCommentAdded, getToken }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -35,14 +35,22 @@ function PostDetail({ post, onBack, onCommentAdded }) {
     if (!trimmed) return;
 
     try {
+      const token = await getToken?.();
+      if (!token) {
+        alert("로그인이 필요합니다.");
+        return;
+      }
+
       setSubmitting(true);
       const res = await fetch(
         `${API_BASE_URL}/community/posts/${post.postId || post.id}/comments`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
           body: JSON.stringify({
-            uid: "test-user",
             nickname: "가연",
             body: commentText,
           }),
@@ -67,7 +75,7 @@ function PostDetail({ post, onBack, onCommentAdded }) {
       setSubmitting(false);
     }
   };
-  
+
   if (loading) return <p>불러오는 중...</p>;
   if (error) return <p>{error}</p>;
   if (!data) return <p>데이터 없음</p>;
