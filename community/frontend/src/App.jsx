@@ -3,12 +3,15 @@ import './App.css'
 import BoardPage from './BoardPage';
 import PostDetail from './PostDetail';
 import WritePostModal from './WritePostModal';
-import { auth } from "./firebase";
+import { auth } from "./firebase"; 
 
 const NOTICES_PER_PAGE = 4;
 
 // ✅ 개발/배포 환경별 API 주소
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || "http://localhost:8000").replace(/\/$/, "");
+const API_BASE_URL = (
+  import.meta.env.VITE_API_BASE_URL ||
+  (import.meta.env.DEV ? "http://localhost:8000" : "https://community-backend-urk6.onrender.com")
+).replace(/\/$/, "");
 
 const NOTICE_DATA = [
   { id: 1, title: '11월 3주차 정기 점검 안내', date: '2025-11-15' },
@@ -23,14 +26,14 @@ function App() {
   const [selectedMenu, setSelectedMenu] = useState("notice");
   const [selectedPost, setSelectedPost] = useState(null);
 
-  // 커뮤 글 리스트
+  //커뮤 글 리스트
   const [communityData, setCommunityData] = useState([]);
 
-  // 커뮤 글 불러오기 에러상태
+  //커뮤 글 불러오기 에러상태
   const [communityLoading, setCommunityLoading] = useState(false);
   const [communityError, setCommunityError] = useState(null);
 
-  // 모달 상태
+  //모달 상태
   const [isWriteOpen, setIsWriteOpen] = useState(false);
 
   const handleSelectedPost = (post) => {
@@ -59,7 +62,7 @@ function App() {
     setIsWriteOpen(false);
   };
 
-  // ✅ 글쓰기(백엔드 연동)
+  // ✅ 글쓰기 (토큰 + 백엔드 연동)
   const handleSubmitWrite = async ({ title, content, image }) => {
     try {
       const token = await auth.currentUser?.getIdToken();
