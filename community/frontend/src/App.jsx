@@ -4,29 +4,9 @@ import BoardPage from './BoardPage';
 import PostDetail from './PostDetail';
 import WritePostModal from './WritePostModal';
 import { auth } from "./firebase"; 
+import { API_BASE_URL, toAbsoluteUrl } from "./apiConfig";
 
 const NOTICES_PER_PAGE = 4;
-
-// ✅ 배포 백엔드 기본값
-const DEFAULT_BACKEND = "https://community-backend-urk6.onrender.com";
-
-// ✅ “배포에서 DEV 서버로 떠도 localhost로 안 가게” 안전장치 포함
-const isLocalHost =
-  typeof window !== "undefined" &&
-  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
-
-const API_BASE_URL = (
-  import.meta.env.VITE_API_BASE_URL ||
-  (isLocalHost ? "http://localhost:8000" : DEFAULT_BACKEND)
-).replace(/\/$/, "");
-
-// ✅ imageUrl이 "/uploads/xxx" (상대경로)로 오면 API_BASE_URL 붙여서 절대경로로 변환
-function toAbsoluteUrl(url) {
-  if (!url) return null;
-  if (/^https?:\/\//i.test(url)) return url; // 이미 절대 URL이면 그대로
-  const normalized = url.startsWith("/") ? url : `/${url}`;
-  return `${API_BASE_URL}${normalized}`;
-}
 
 const NOTICE_DATA = [
   { id: 1, title: '11월 3주차 정기 점검 안내', date: '2025-11-15' },
