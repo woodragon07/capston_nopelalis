@@ -1,28 +1,26 @@
-from fastapi import APIRouter, HTTPException, UploadFile, File, Form
+from fastapi import APIRouter, HTTPException, UploadFile, File, Form, Header
 from pydantic import BaseModel
 from pathlib import Path
 from typing import Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
 import json, uuid
-from .firebase import get_uid
-from fastapi import Header
 
+from .firebase import get_uid, get_user_profile
 
 router = APIRouter()
 
-DB = Path("community.json")
-UPLOAD_DIR = Path("uploads")  # main.py에서도 같은 폴더를 StaticFiles로 마운트
+# ✅ 파일 위치 기준으로 경로 고정 (배포에서 꼬임 방지)
+BASE_DIR = Path(__file__).resolve().parent
+DB = BASE_DIR / "community.json"
+UPLOAD_DIR = BASE_DIR / "uploads"
 
 # ----- 시간 & JSON 유틸 -----
 TZ_KST = timezone(timedelta(hours=9), name="KST")
 
-
 def now_kst_iso() -> str:
     return datetime.now(TZ_KST).isoformat()
 
-
 def load_db() -> Dict[str, Any]:
-    """community.json을 UTF-8로 읽어서 dict로 반환"""
     if not DB.exists():
         return {"posts": []}
     try:
@@ -30,25 +28,23 @@ def load_db() -> Dict[str, Any]:
     except Exception:
         return {"posts": []}
 
-
 def save_db(data: Dict[str, Any]) -> None:
-    """dict를 community.json에 UTF-8로 저장"""
     DB.write_text(
         json.dumps(data, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
 
-
 class CommentCreate(BaseModel):
-    uid: str
-    nickname: str
+    # ✅ 호환성 위해 uid/nickname은 optional로 두고,
+    # 실제 저장 uid는 토큰에서 뽑는 것을 우선합니다.
+    uid: Optional[str] = None
+    nickname: Optional[str] = None
     body: str
-
 
 # ========== 1) 글 작성 (텍스트 + 이미지 업로드) ==========
 @router.post("/posts")
 async def create_post(
-    authorization: str | None = Header(default=None), # 인증 토큰 헤더
+    authorization: str | None = Header(default=None),
     nickname: str = Form(...),
     title: str = Form(...),
     body: str = Form(""),
@@ -56,9 +52,17 @@ async def create_post(
 ):
     """
     게시글 작성 API (multipart/form-data)
-    - 필드: uid, nickname, title, body, image(옵션)
-    - image가 있으면 /uploads/... 에 저장하고 imageUrl을 글에 포함
+    - Authorization: Bearer <firebase id token>
+    - nickname, title, body, image(옵션)
     """
+    uid = get_uid(authorization)
+
+    # nickname이 비어있으면 users 컬렉션에서 보정(있을 때만)
+    nick = (nickname or "").strip()
+    if not nick:
+        profile = get_user_profile(uid)
+        nick = (profile or {}).get("nickname") or (profile or {}).get("name") or "익명"
+
     db = load_db()
     posts = db.setdefault("posts", [])
 
@@ -80,31 +84,27 @@ async def create_post(
                     break
                 f.write(chunk)
 
+        # ✅ 상대경로로 저장(프론트에서 API_BASE_URL 붙여서 사용)
         image_url = f"/uploads/{filename}"
 
     post = {
         "postId": post_id,
         "uid": uid,
-        "nickname": nickname,
+        "nickname": nick,
         "title": title,
         "body": body,
         "createdAt": now,
         "updatedAt": now,
-        "imageUrl": image_url,  # 없으면 null
+        "imageUrl": image_url,
         "comments": [],
     }
     posts.append(post)
     save_db(db)
     return post
 
-
-# ========== 2) 글 목록 (제목 + 날짜 + 페이징) ==========
+# ========== 2) 글 목록 ==========
 @router.get("/posts")
 def list_posts(page: int = 1, page_size: int = 10):
-    """
-    유저 커뮤니티 목록 API
-    - 응답: 제목, 작성자, 작성일, 댓글 수(+ imageUrl)
-    """
     db = load_db()
     posts = sorted(
         db.get("posts", []),
@@ -144,8 +144,7 @@ def list_posts(page: int = 1, page_size: int = 10):
         "items": items,
     }
 
-
-# ========== 3) 글 상세 (제목 + 작성자 + 내용 + 댓글 + 이미지) ==========
+# ========== 3) 글 상세 ==========
 @router.get("/posts/{post_id}")
 def get_post_detail(post_id: str):
     db = load_db()
@@ -168,30 +167,31 @@ def get_post_detail(post_id: str):
             }
     raise HTTPException(status_code=404, detail="post not found")
 
-
-# ========== 4) 글 수정 (텍스트 + 이미지 교체 가능) ==========
+# ========== 4) 글 수정 ==========
 @router.put("/posts/{post_id}")
 async def update_post(
     post_id: str,
+    authorization: str | None = Header(default=None),
     title: str | None = Form(None),
     body: str | None = Form(None),
     image: UploadFile | None = File(None),
 ):
-    """
-    게시글 수정 API
-    """
+    uid = get_uid(authorization)
+
     db = load_db()
     posts = db.get("posts", [])
 
     for p in posts:
         if p.get("postId") == post_id:
-            # 텍스트 수정
+            # ✅ 작성자만 수정 가능
+            if p.get("uid") != uid:
+                raise HTTPException(status_code=403, detail="forbidden")
+
             if title is not None:
                 p["title"] = title
             if body is not None:
                 p["body"] = body
 
-            # 이미지 수정
             if image and image.filename:
                 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
                 ext = Path(image.filename).suffix.lower()
@@ -228,25 +228,55 @@ async def update_post(
 
     raise HTTPException(status_code=404, detail="post not found")
 
-
 # ========== 5) 글 삭제 ==========
 @router.delete("/posts/{post_id}")
-def delete_post(post_id: str):
+def delete_post(
+    post_id: str,
+    authorization: str | None = Header(default=None),
+):
+    uid = get_uid(authorization)
+
     db = load_db()
     posts = db.get("posts", [])
 
-    new_posts = [p for p in posts if p.get("postId") != post_id]
-    if len(new_posts) == len(posts):
+    target = None
+    for p in posts:
+        if p.get("postId") == post_id:
+            target = p
+            break
+
+    if not target:
         raise HTTPException(status_code=404, detail="post not found")
 
-    db["posts"] = new_posts
+    # ✅ 작성자만 삭제 가능
+    if target.get("uid") != uid:
+        raise HTTPException(status_code=403, detail="forbidden")
+
+    db["posts"] = [p for p in posts if p.get("postId") != post_id]
     save_db(db)
     return {"ok": True}
 
-
 # ========== 6) 댓글 작성 ==========
 @router.post("/posts/{post_id}/comments")
-def add_comment(post_id: str, body: CommentCreate):
+def add_comment(
+    post_id: str,
+    body: CommentCreate,
+    authorization: str | None = Header(default=None),
+):
+    # ✅ 토큰 있으면 토큰 우선, 없으면(호환) body.uid를 요구
+    if authorization and authorization.startswith("Bearer "):
+        uid = get_uid(authorization)
+        profile = get_user_profile(uid)
+        nickname = (body.nickname or "").strip() or (profile or {}).get("nickname") or (profile or {}).get("name") or "익명"
+    else:
+        if not body.uid:
+            raise HTTPException(status_code=401, detail="Missing token")
+        uid = body.uid
+        nickname = (body.nickname or "").strip() or "익명"
+
+    if not body.body.strip():
+        raise HTTPException(status_code=400, detail="comment body is empty")
+
     db = load_db()
     posts = db.get("posts", [])
 
@@ -254,8 +284,8 @@ def add_comment(post_id: str, body: CommentCreate):
         if p.get("postId") == post_id:
             comment = {
                 "commentId": str(uuid.uuid4()),
-                "uid": body.uid,
-                "nickname": body.nickname,
+                "uid": uid,
+                "nickname": nickname,
                 "body": body.body,
                 "createdAt": now_kst_iso(),
             }

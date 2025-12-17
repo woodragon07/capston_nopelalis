@@ -1,17 +1,14 @@
-# firebase.py
 import os, json
 import firebase_admin
 from firebase_admin import credentials, auth as fb_auth, firestore
 from fastapi import HTTPException
 
 def _init_firebase():
-    # 이미 초기화되어 있으면 스킵
     if firebase_admin._apps:
         return
 
     cred_json = os.environ.get("FIREBASE_CREDENTIALS")
     if not cred_json:
-        # 배포에서 이게 없으면 무조건 죽게 만드는 게 맞음(조용히 실패하면 더 지옥)
         raise RuntimeError("FIREBASE_CREDENTIALS env not set")
 
     try:
@@ -42,4 +39,3 @@ def get_user_profile(uid: str) -> dict | None:
     if user_doc.exists:
         return user_doc.to_dict()
     return None
-

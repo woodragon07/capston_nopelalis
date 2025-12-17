@@ -7,11 +7,26 @@ import { auth } from "./firebase";
 
 const NOTICES_PER_PAGE = 4;
 
-// ✅ 개발/배포 환경별 API 주소
+// ✅ 배포 백엔드 기본값
+const DEFAULT_BACKEND = "https://community-backend-urk6.onrender.com";
+
+// ✅ “배포에서 DEV 서버로 떠도 localhost로 안 가게” 안전장치 포함
+const isLocalHost =
+  typeof window !== "undefined" &&
+  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1");
+
 const API_BASE_URL = (
   import.meta.env.VITE_API_BASE_URL ||
-  (import.meta.env.DEV ? "http://localhost:8000" : "https://community-backend-urk6.onrender.com")
+  (isLocalHost ? "http://localhost:8000" : DEFAULT_BACKEND)
 ).replace(/\/$/, "");
+
+// ✅ imageUrl이 "/uploads/xxx" (상대경로)로 오면 API_BASE_URL 붙여서 절대경로로 변환
+function toAbsoluteUrl(url) {
+  if (!url) return null;
+  if (/^https?:\/\//i.test(url)) return url; // 이미 절대 URL이면 그대로
+  const normalized = url.startsWith("/") ? url : `/${url}`;
+  return `${API_BASE_URL}${normalized}`;
+}
 
 const NOTICE_DATA = [
   { id: 1, title: '11월 3주차 정기 점검 안내', date: '2025-11-15' },
@@ -26,14 +41,14 @@ function App() {
   const [selectedMenu, setSelectedMenu] = useState("notice");
   const [selectedPost, setSelectedPost] = useState(null);
 
-  //커뮤 글 리스트
+  // 커뮤 글 리스트
   const [communityData, setCommunityData] = useState([]);
 
-  //커뮤 글 불러오기 에러상태
+  // 커뮤 글 불러오기 에러상태
   const [communityLoading, setCommunityLoading] = useState(false);
   const [communityError, setCommunityError] = useState(null);
 
-  //모달 상태
+  // 모달 상태
   const [isWriteOpen, setIsWriteOpen] = useState(false);
 
   const handleSelectedPost = (post) => {
@@ -72,7 +87,7 @@ function App() {
       }
 
       const form = new FormData();
-      form.append("nickname", "가연");
+      form.append("nickname", "가연"); // 임시
       form.append("title", title);
       form.append("body", content);
       if (image) form.append("image", image);
@@ -86,7 +101,8 @@ function App() {
       });
 
       if (!res.ok) {
-        throw new Error(`HTTP 오류: ${res.status}`);
+        const t = await res.text().catch(() => "");
+        throw new Error(`HTTP 오류: ${res.status} ${t}`);
       }
 
       const created = await res.json();
@@ -97,7 +113,7 @@ function App() {
         date: created.createdAt.slice(0, 10),
         nickname: created.nickname,
         commentCount: (created.comments || []).length,
-        imageUrl: created.imageUrl,
+        imageUrl: toAbsoluteUrl(created.imageUrl),
       };
 
       setCommunityData((prev) => [mapped, ...prev]);
@@ -120,7 +136,8 @@ function App() {
         );
 
         if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
+          const t = await res.text().catch(() => "");
+          throw new Error(`HTTP ${res.status} ${t}`);
         }
 
         const data = await res.json();
@@ -131,7 +148,7 @@ function App() {
           date: item.createdAt.slice(0, 10),
           nickname: item.nickname,
           commentCount: item.commentCount,
-          imageUrl: item.imageUrl,
+          imageUrl: toAbsoluteUrl(item.imageUrl),
         }));
 
         setCommunityData(mapped);

@@ -12,11 +12,10 @@ app = FastAPI(
 
 BASE_DIR = Path(__file__).resolve().parent
 
-# ----- CORS 설정 -----
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "https://please-community-frontend.onrender.com",  # ✅ 배포 프론트 도메인 추가
+    "https://please-community-frontend.onrender.com",
 ]
 
 app.add_middleware(
@@ -24,7 +23,7 @@ app.add_middleware(
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],  # Authorization 포함 프리플라이트 허용
+    allow_headers=["*"],  # Authorization 포함
 )
 
 app.include_router(
