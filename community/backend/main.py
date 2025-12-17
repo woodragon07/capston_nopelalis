@@ -3,7 +3,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-# ✅ 같은 패키지(community/backend) 안의 community.py에서 router 가져오기
 from .community import router as community_router
 
 app = FastAPI(
@@ -11,13 +10,13 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# ✅ 현재 파일 기준 경로 고정
 BASE_DIR = Path(__file__).resolve().parent
 
 # ----- CORS 설정 -----
 origins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "https://please-community-frontend.onrender.com",  # ✅ 배포 프론트 도메인 추가
 ]
 
 app.add_middleware(
@@ -25,17 +24,15 @@ app.add_middleware(
     allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*"],  # Authorization 포함 프리플라이트 허용
 )
 
-# ----- 라우터 연결 -----
 app.include_router(
     community_router,
     prefix="/community",
     tags=["community"],
 )
 
-# ----- 업로드 폴더 Static 마운트 -----
 UPLOAD_DIR = BASE_DIR / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
