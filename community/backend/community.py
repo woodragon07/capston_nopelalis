@@ -5,9 +5,17 @@ from typing import Dict, Any, Optional
 from datetime import datetime, timezone, timedelta
 import json, uuid
 
-from .firebase import get_uid, get_user_profile
+from .firebase import get_uid, get_user_profile, consume_sso_code
 
 router = APIRouter()
+
+class SSOConsume(BaseModel):
+    code: str
+
+@router.post("/sso/consume")
+def sso_consume(body: SSOConsume):
+    token = consume_sso_code(body.code.strip())
+    return {"customToken": token}
 
 # ✅ 파일 위치 기준으로 경로 고정 (배포에서 꼬임 방지)
 BASE_DIR = Path(__file__).resolve().parent
