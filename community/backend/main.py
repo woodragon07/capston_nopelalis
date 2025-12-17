@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from .community import router as community_router
+from community import router as community_router
 
 app = FastAPI(title="Please Community API", version="0.1.0")
 
